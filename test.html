@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f2ea" />
+
+    <title>987サウナ｜テストページ</title>
+    <meta
+      name="description"
+      content="987サウナのテストページ。夏季限定バーベキュープランのバナー確認用です。"
+    />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&display=swap"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="test-home">
+    <a class="skipLink" href="#main">本文へスキップ</a>
+
+    <header class="header" data-elevate="false">
+      <div class="container header__inner">
+        <a class="brand" href="#top" aria-label="987サウナ トップへ">
+          <span class="brand__mark" aria-hidden="true">987</span>
+          <span class="brand__name">SAUNA</span>
+        </a>
+
+        <nav class="nav" aria-label="ページ内メニュー">
+          <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="navMenu">
+            <span class="nav__toggleLabel">メニュー</span>
+            <span class="nav__toggleIcon" aria-hidden="true"></span>
+          </button>
+          <div class="nav__menu" id="navMenu">
+            <a class="nav__link" href="#about">About</a>
+            <a class="nav__link" href="#bbq">BBQ</a>
+            <a class="nav__link" href="#price">Price</a>
+            <a class="nav__link" href="#access">アクセス</a>
+            <a
+              class="button button--small button--primary"
+              href="https://987sauna.stores.jp/reserve/987sauna/booking_pages#pageContent"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Booking</a
+            >
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <section id="top" class="hero hero--test" aria-label="987サウナのテストページ">
+      <div class="hero__bg hero__bg--test" role="img" aria-label="987サウナの外観"></div>
+      <div class="hero__overlay" aria-hidden="true"></div>
+      <div class="hero__foreground">
+        <img src="hero.a.png" alt="987 桑名サウナ" class="hero__logo" />
+      </div>
+    </section>
+
+    <main id="main">
+      <section class="summer-banner-section" id="bbq" aria-label="夏季限定バーベキュープラン">
+        <div class="container">
+          <header class="summer-banner-heading">
+            <p class="summer-banner-heading__eyebrow">SUMMER LIMITED</p>
+            <h2 class="summer-banner-heading__title">BBQ PLAN</h2>
+            <p class="summer-banner-heading__lead">夏季限定バーベキュープラン</p>
+          </header>
+
+          <a class="summer-banner" href="summer-bbq.html" aria-label="夏季限定バーベキュープランの詳細を見る">
+            <span class="summer-banner__tile summer-banner__tile--topLeft">
+              <img src="bath.jpg" alt="水辺のあるリラックス空間" />
+            </span>
+            <span class="summer-banner__tile summer-banner__tile--topRight">
+              <img src="gallery1.jpg" alt="仲間と楽しむ987サウナ" />
+            </span>
+            <span class="summer-banner__tile summer-banner__tile--bottomLeft">
+              <img src="outside.jpg" alt="987サウナの屋外スペース" />
+            </span>
+            <span class="summer-banner__tile summer-banner__tile--bottomRight">
+              <img src="gallery4.jpg" alt="987サウナのバレルサウナ" />
+            </span>
+            <span class="summer-banner__overlay" aria-hidden="true"></span>
+            <span class="summer-banner__message">
+              <span class="summer-banner__subcopy">サウナ後に、そのまま肉を焼く、、</span>
+              <span class="summer-banner__maincopy">それ正解!!</span>
+              <span class="summer-banner__underline"></span>
+              <span class="summer-banner__footcopy">987の夏季限定バーベキュープランがここに!!</span>
+              <span class="summer-banner__detail">詳しくはこちら</span>
+            </span>
+          </a>
+        </div>
+      </section>
+
+      <section class="section section--about" id="about" aria-label="About">
+        <div class="container section__inner">
+          <header class="section__header">
+            <h2 class="section__title">About</h2>
+            <p class="section__lead">静けさと熱量のあいだに、余白をつくる。</p>
+          </header>
+          <div class="prose">
+            <p>
+              987サウナは、サウナ、水、休憩の流れがせわしなくならないように設計された完全貸切サウナです。
+              夏季限定プランでは、サウナ後の屋外時間をより楽しめるBBQ体験もあわせて訴求します。
+            </p>
+            <figure>
+              <img src="about.jpg" alt="987サウナの空間イメージ" loading="lazy" />
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="price" class="section section--alt" aria-label="料金プラン">
+        <div class="container section__inner">
+          <header class="section__header">
+            <h2 class="section__title">Price</h2>
+            <p class="section__lead">サウナ単体も、夏のBBQセットも。</p>
+          </header>
+
+          <div class="test-plan-grid">
+            <article class="price-card">
+              <img class="price-card__img" src="barrel-sauna.png" alt="完全貸切バレルサウナ" loading="lazy" />
+              <div class="price-card__body">
+                <h3 class="price-card__name">完全貸切バレルサウナプラン</h3>
+                <p class="price-card__price">3時間 5000円〜 / 人</p>
+                <p class="price-card__desc">
+                  木の香りに包まれる本格バレルサウナを完全貸切で利用できます。
+                </p>
+              </div>
+            </article>
+
+            <article class="price-card price-card--summer">
+              <img class="price-card__img" src="bbq-main-visual.png" alt="サウナ後にBBQを楽しむ夏季限定プラン" loading="lazy" />
+              <div class="price-card__body">
+                <p class="summer-chip">夏季限定</p>
+                <h3 class="price-card__name">サウナ & BBQプラン</h3>
+                <p class="price-card__price">4時間 8,800円 / 人</p>
+                <p class="price-card__desc">
+                  貸切サウナで整ったあと、そのままBBQまで楽しめる夏季限定プランです。
+                  4名様よりご利用いただけます。
+                </p>
+                <a class="link summer-inline-link" href="summer-bbq.html">プラン詳細を見る</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--access" id="access" aria-label="アクセス">
+        <div class="container section__inner">
+          <header class="section__header">
+            <h2 class="section__title">Access</h2>
+            <p class="section__lead">迷わず着いて、すぐ整える。</p>
+          </header>
+          <div class="access">
+            <div class="access__info">
+              <dl class="kv">
+                <div class="kv__row">
+                  <dt>施設名</dt>
+                  <dd>987サウナ</dd>
+                </div>
+                <div class="kv__row">
+                  <dt>住所</dt>
+                  <dd>三重県桑名市大字西方小谷2411（スポーツマジック桑名内）</dd>
+                </div>
+                <div class="kv__row">
+                  <dt>営業</dt>
+                  <dd>10:00〜23:30（定休日なし）</dd>
+                </div>
+              </dl>
+            </div>
+            <div class="access__map">
+              <iframe
+                title="987サウナのGoogleマップ"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3264.9390704545845!2d136.6612769!3d35.083255099999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x600391641836e217%3A0x82c56c28c422e21!2zOTg344K144Km44OKIEtVV0FOQSBTQVVOQQ!5e0!3m2!1sja!2sjp!4v1773134908344!5m2!1sja!2sjp"
+                width="100%"
+                height="360"
+                style="border:0;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="booking" id="booking" aria-label="Booking">
+        <div class="container booking__inner">
+          <div class="booking__left">
+            <h2 class="booking__title">Booking</h2>
+            <p class="booking__text">空き状況と予約は、STORESの予約ページからご確認ください。</p>
+            <a
+              class="button booking__btn"
+              href="https://987sauna.stores.jp/reserve/987sauna/booking_pages#pageContent"
+              target="_blank"
+              rel="noopener noreferrer"
+              >STORESで予約する</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" aria-label="フッター">
+      <div class="container footer__inner">
+        <div class="footer__left">
+          <p class="footer__brand"><span aria-hidden="true">987</span> SAUNA</p>
+          <p class="footer__small">© <span data-year></span> 987 Sauna. All rights reserved.</p>
+        </div>
+        <div class="footer__right">
+          <a class="footer__link" href="#top">上へ</a>
+          <a class="footer__link" href="summer-bbq.html">BBQ</a>
+          <a class="footer__link" href="#access">アクセス</a>
+        </div>
+      </div>
+    </footer>
+
+    <a
+      class="sticky-booking"
+      data-sticky-booking
+      href="https://987sauna.stores.jp/reserve/987sauna/booking_pages#pageContent"
+      target="_blank"
+      rel="noopener noreferrer"
+      >今すぐ予約</a
+    >
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
