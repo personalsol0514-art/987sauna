@@ -1799,45 +1799,113 @@ textarea.form__control{resize: vertical}
 
 .bbq-price-list{
   display: grid;
-  gap: 58px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.bbq-price-time{
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgba(27,26,22,.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 16px 36px rgba(27,26,22,.08);
+}
+
+.bbq-price-time__label{
+  display: inline-flex;
+  margin-bottom: 14px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(107,122,58,.12);
+  color: #6b7a3a;
+  font-family: var(--font-latin);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .18em;
 }
 
 .bbq-price-time h2{
   margin: 0 0 18px;
-  font-size: clamp(28px, 4vw, 40px);
-  line-height: 1.55;
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.45;
   letter-spacing: .04em;
-  font-weight: 500;
+  font-weight: 800;
 }
 
-.bbq-price-time p{
-  margin: 12px 0 0;
-  font-size: clamp(26px, 3.8vw, 38px);
-  line-height: 1.55;
-  letter-spacing: .04em;
-}
-
-.bbq-price-notes{
+.bbq-price-time dl{
   display: grid;
-  gap: 18px;
+  gap: 10px;
+  margin: 0;
+}
+
+.bbq-price-time dl div{
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(27,26,22,.16);
+}
+
+.bbq-price-time dt,
+.bbq-price-time dd{
+  margin: 0;
+  font-size: clamp(20px, 2.8vw, 28px);
+  line-height: 1.45;
+  letter-spacing: .04em;
+}
+
+.bbq-price-time dt{
+  color: rgba(17,17,17,.62);
+  white-space: nowrap;
+}
+
+.bbq-price-time dd{
+  font-weight: 900;
+  text-align: right;
+}
+
+.bbq-price-info-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
   margin-top: 68px;
+}
+
+.bbq-price-info-card{
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgba(27,26,22,.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 16px 36px rgba(27,26,22,.08);
+}
+
+.bbq-price-info-card--alert{
+  grid-column: 1 / -1;
+  border-color: rgba(194,56,56,.22);
+  background: rgba(255,248,248,.95);
   color: #c23838;
 }
 
-.bbq-price-notes p,
-.bbq-price-extra p,
-.bbq-price-booth p{
+.bbq-price-info-card h2{
+  margin: 0 0 18px;
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: .08em;
+}
+
+.bbq-price-info-card p{
   margin: 0;
-  font-size: clamp(22px, 3.2vw, 32px);
+  font-size: clamp(18px, 2.6vw, 25px);
   line-height: 1.8;
   letter-spacing: .04em;
 }
 
-.bbq-price-extra,
-.bbq-price-booth{
-  display: grid;
-  gap: 16px;
-  margin-top: 70px;
+.bbq-price-info-card p + p{
+  margin-top: 10px;
+}
+
+.bbq-price-info-card__main{
+  font-size: clamp(24px, 3.4vw, 34px) !important;
+  font-weight: 900;
 }
 
 .bbq-price-cta{
@@ -1890,14 +1958,22 @@ textarea.form__control{resize: vertical}
     padding-top: 24px;
   }
 
-  .bbq-price-list{
-    gap: 50px;
+  .bbq-price-list,
+  .bbq-price-info-grid{
+    grid-template-columns: 1fr;
   }
 
-  .bbq-price-notes,
-  .bbq-price-extra,
-  .bbq-price-booth{
-    margin-top: 58px;
+  .bbq-price-info-grid{
+    margin-top: 42px;
+  }
+
+  .bbq-price-time dl div{
+    display: grid;
+    gap: 4px;
+  }
+
+  .bbq-price-time dd{
+    text-align: left;
   }
 
   .bbq-sticky-reserve{
