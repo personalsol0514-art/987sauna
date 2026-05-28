@@ -1864,6 +1864,73 @@ textarea.form__control{resize: vertical}
   text-align: right;
 }
 
+.sauna-price-detail{
+  margin-top: 68px;
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid rgba(27,26,22,.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 16px 36px rgba(27,26,22,.08);
+}
+
+.sauna-price-detail__head{
+  display: grid;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.sauna-price-detail__head p{
+  margin: 0;
+  color: #6b7a3a;
+  font-family: var(--font-latin);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.sauna-price-detail__head h2{
+  margin: 0;
+  font-size: clamp(26px, 4vw, 38px);
+  letter-spacing: .08em;
+}
+
+.sauna-price-detail__head span{
+  color: var(--muted);
+  font-size: clamp(16px, 2.4vw, 22px);
+  line-height: 1.6;
+}
+
+.sauna-price-grid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.sauna-price-card{
+  min-width: 0;
+  padding: 20px 16px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  text-align: center;
+}
+
+.sauna-price-card span,
+.sauna-price-card small{
+  display: block;
+  color: rgba(17,17,17,.62);
+  font-size: 14px;
+  letter-spacing: .06em;
+}
+
+.sauna-price-card strong{
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-latin);
+  font-size: clamp(26px, 4vw, 40px);
+  line-height: 1.1;
+  letter-spacing: .03em;
+}
+
 .bbq-price-info-grid{
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1959,8 +2026,13 @@ textarea.form__control{resize: vertical}
   }
 
   .bbq-price-list,
+  .sauna-price-grid,
   .bbq-price-info-grid{
     grid-template-columns: 1fr;
+  }
+
+  .sauna-price-detail{
+    margin-top: 42px;
   }
 
   .bbq-price-info-grid{
