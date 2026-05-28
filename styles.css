@@ -1987,21 +1987,31 @@ textarea.form__control{resize: vertical}
 
 .bbq-sticky-reserve{
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 50%;
+  bottom: 20px;
   z-index: 90;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 78px;
-  padding: 16px 22px calc(16px + env(safe-area-inset-bottom));
-  background: rgba(196,39,44,.88);
-  color: #fff;
+  width: min(420px, calc(100% - 40px));
+  min-height: 58px;
+  padding: 16px 24px;
+  border-radius: 999px;
+  background: #6b7a3a;
+  color: #f2e6ce;
+  border: 1px solid rgba(107,122,58,.95);
   font-size: 18px;
   font-weight: 900;
   letter-spacing: .12em;
-  box-shadow: 0 -10px 30px rgba(0,0,0,.16);
+  box-shadow: 0 16px 38px rgba(27,26,22,.26);
+  transform: translateX(-50%);
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+
+.bbq-sticky-reserve:hover{
+  background: #758442;
+  color: #fff;
+  transform: translateX(-50%) translateY(-2px);
 }
 
 .bbq-price-page .footer{
