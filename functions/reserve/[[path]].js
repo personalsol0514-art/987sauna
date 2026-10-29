@@ -28,8 +28,8 @@ export async function onRequest({ request }) {
   if (path !== '/reserve' && path !== '/reserve/') return new Response('Not found', { status: 404, headers: HEADERS });
   if (!['GET', 'HEAD'].includes(request.method)) return json(405, { ok: false });
   try {
-    const upstream = await fetch(ORIGIN + '/', { redirect: 'error', signal: AbortSignal.timeout(15000) });
-    if (!upstream.ok) throw new Error('upstream');
+    const upstream = await fetch(ORIGIN + '/', { redirect: 'follow', signal: AbortSignal.timeout(15000) });
+    if (!upstream.ok) throw new Error('upstream_status_' + upstream.status);
     let html = await upstream.text();
     const apiPattern = /const\s+api\s*=\s*\{\s*endpoint:\s*["']\/api\/reservations["']\s*\}\s*;/;
     if (!apiPattern.test(html) || !html.includes('</head>') || !html.includes('<body')) throw new Error('source_changed');
@@ -38,7 +38,7 @@ export async function onRequest({ request }) {
     html = html.replace('</head>', '<meta name="robots" content="noindex,nofollow,noarchive"><style>.reserve-test-notice{position:relative;z-index:100001;padding:14px 20px;background:#fff3cf;color:#362c18;text-align:center;font:600 14px/1.7 sans-serif}.reserve-test-notice a{color:inherit;text-decoration:underline}</style><script>if(!location.hash){location.hash=location.search.includes("token=")?"manage":"booking_pages"}</script></head>');
     html = html.replace(/<body([^>]*)>/, '<body$1><aside class="reserve-test-notice" role="status">移管テストページ｜空き枠・入力画面の確認用です。予約確定・照会・キャンセルはできません。<br><a href="/">現在のホームページへ戻る</a></aside>');
     return new Response(request.method === 'HEAD' ? null : html, { headers: { ...HEADERS, 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "form-action 'none'; frame-ancestors 'self'", 'x-content-type-options': 'nosniff' } });
-  } catch {
-    return new Response('テストページを読み込めませんでした。公開中の予約画面の構成を確認してください。', { status: 502, headers: { ...HEADERS, 'content-type': 'text/plain; charset=utf-8' } });
+  } catch (error) {
+    return new Response('診断: ' + error.message + '。テストページを読み込めませんでした。公開中の予約画面の構成を確認してください。', { status: 502, headers: { ...HEADERS, 'content-type': 'text/plain; charset=utf-8' } });
   }
 }
