@@ -5,6 +5,8 @@ function json(status, body) {
   return new Response(JSON.stringify(body), { status, headers: { ...HEADERS, 'content-type': 'application/json; charset=utf-8' } });
 }
 export async function onRequest({ request }) {
+  const testResponse = await handleTestOperation(request);
+  if (testResponse) return testResponse;
   const adminResponse = await handleAdmin(request);
   if (adminResponse) return adminResponse;
   const path = new URL(request.url).pathname;
@@ -50,7 +52,7 @@ export async function onRequest({ request }) {
     html = html.replace(apiPattern, 'const api={endpoint:"' + API + '"};');
     html = html.replaceAll('public/', '/reserve/public/');
     html = html.replace('</head>', '<meta name="robots" content="noindex,nofollow,noarchive"><style>.reserve-test-notice{position:fixed;top:0;left:0;right:0;z-index:100001;padding:14px 20px;background:#fff3cf;color:#362c18;text-align:center;font:600 14px/1.7 sans-serif}.reserve-test-notice a{color:inherit;text-decoration:underline}</style><script>if(!location.hash){location.hash=location.search.includes("token=")?"manage":"booking_pages"}</script></head>');
-    html = html.replace(/<body([^>]*)>/, '<body$1><aside class="reserve-test-notice" role="status">移管テストページ｜空き枠・入力画面の確認用です。予約確定・照会・キャンセルはできません。<br><a href="https://987sauna.pages.dev/">現在のホームページへ戻る</a></aside>');
+    html = html.replace(/<body([^>]*)>/, '<body$1><aside class="reserve-test-notice" role="status">移管テスト｜氏名「移管テスト_20261029」・メール「migration-20261029@example.com」でのみ予約できます。新システムのDBに記録されます。<br><a href="/reserve/admin">管理画面のテストへ</a> ／ <a href="https://987sauna.pages.dev/">現在のホームページへ戻る</a></aside>');
     return new Response(request.method === 'HEAD' ? null : html, { headers: { ...HEADERS, 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "form-action 'none'; frame-ancestors 'self'", 'x-content-type-options': 'nosniff' } });
   } catch (error) {
     return new Response('診断: ' + error.message + '。テストページを読み込めませんでした。公開中の予約画面の構成を確認してください。', { status: 502, headers: { ...HEADERS, 'content-type': 'text/plain; charset=utf-8' } });
@@ -105,7 +107,7 @@ async function handleAdmin(request) {
     html=rebaseAdminRefs(html);
     html=html.replace('catch(e){showAuth("login")}}','catch(e){showAuth("login");if(e.status>=500)$("#loginError").textContent=e.response?.message||"管理APIに接続できません。"}}');
     html=html.replace('</head>','<meta name="robots" content="noindex,nofollow,noarchive"><style>body{padding-top:76px}.admin-test-notice{position:fixed;top:0;left:0;right:0;z-index:100001;background:#fff3cf;color:#362c18;padding:12px 18px;text-align:center;font:600 14px/1.7 sans-serif}.admin-test-notice a{text-decoration:underline;color:inherit}</style></head>');
-    html=html.replace(/<body([^>]*)>/,'<body$1><aside class="admin-test-notice" role="status">管理画面の移管テスト｜既存アカウントでログイン・閲覧できます。更新・精算・予約作成・通知送信は停止中です。<br><a href="/reserve/">予約画面のテストへ</a></aside>');
+    html=html.replace(/<body([^>]*)>/,'<body$1><aside class="admin-test-notice" role="status">管理画面の移管テスト｜「移管テスト_20261029」の予約のみ、受付情報更新・精算・キャンセルを試せます。その他の更新操作は停止中です。<br><a href="/reserve/">予約画面のテストへ</a></aside>');
     return new Response(request.method==='HEAD'?null:html,{headers:{...HEADERS,'content-type':'text/html; charset=utf-8','content-security-policy':"form-action 'none'; frame-ancestors 'self'",'x-content-type-options':'nosniff'}});
   } catch {return new Response('管理テスト画面を読み込めませんでした。',{status:502,headers:{...HEADERS,'content-type':'text/plain; charset=utf-8'}});}
 }
@@ -122,4 +124,46 @@ async function adminFetch(path, init) {
     target=next;
   }
   throw Error('too_many_redirects');
+}
+const TEST_NAME = '移管テスト_20261029';
+const TEST_EMAIL = 'migration-20261029@example.com';
+const TEST_FROM = '2026-10-29';
+const TEST_TO = '2026-12-28';
+async function testBackend(request, endpoint, body) {
+  const headers = {'content-type':'application/json'};
+  const cookie=(request.headers.get('cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('kuwana_admin_session='));
+  if(cookie)headers.cookie=cookie;
+  const response=await adminFetch('/.netlify/functions/'+endpoint,{method:'POST',headers,signal:AbortSignal.timeout(15000),body:JSON.stringify(body)});
+  return {response,data:await response.json()};
+}
+async function handleTestOperation(request) {
+  const path=new URL(request.url).pathname;
+  if(request.method!=='POST'||!['/reserve/api/reservations','/reserve/api/admin-reservations','/reserve/api/settlement'].includes(path))return null;
+  let body;
+  try{const text=await request.clone().text();if(text.length>16384)return json(413,{ok:false});body=JSON.parse(text);}catch{return json(400,{ok:false});}
+  const endpoint=path.split('/').pop();
+  const actions={reservations:['createBooking','lookupBooking'],'admin-reservations':['updateReservationAttributes','adminCancel'],settlement:['recordSettlement']};
+  if(!actions[endpoint].includes(body?.action))return null;
+  const denied=()=>json(403,{ok:false,message:'この操作は指定された「移管テスト」のデータだけで実行できます。'});
+  const origin=request.headers.get('origin');
+  if(origin&&origin!==new URL(request.url).origin)return denied();
+  if(!request.headers.get('content-type')?.includes('application/json'))return json(415,{ok:false});
+  const p=body.payload||{};
+  if(body.action==='createBooking'&&(p.name!==TEST_NAME||String(p.email||'').toLowerCase()!==TEST_EMAIL||!/^\d{4}-\d{2}-\d{2}$/.test(p.date)||p.date<TEST_FROM||p.date>TEST_TO))return denied();
+  if(body.action==='lookupBooking'&&(String(p.email||'').toLowerCase()!==TEST_EMAIL||typeof p.number!=='string'||!p.number))return denied();
+  if(endpoint==='admin-reservations'&&(typeof p.id!=='string'||!p.id))return denied();
+  if(body.action==='recordSettlement'&&(typeof p.reservationId!=='string'||!p.reservationId||!Number.isSafeInteger(p.amount)||p.amount<0||p.amount>50000||p.staffName!=='移管テスト'))return denied();
+  try{
+    if(endpoint!=='reservations'){
+      const me=await testBackend(request,'admin-auth',{action:'me'});
+      if(me.response.status!==200||me.data.user?.role!=='owner')return json(401,{ok:false,message:'先にテスト管理画面でオーナーアカウントにログインしてください。'});
+      const list=await testBackend(request,'admin-reservations',{action:'listReservations',payload:{from:TEST_FROM,to:TEST_TO}});
+      if(list.response.status!==200)return json(list.response.status,{ok:false,message:'テスト対象を確認できませんでした。'});
+      const id=endpoint==='settlement'?p.reservationId:p.id;
+      const row=(list.data.bookings||[]).find(b=>b.id===id);
+      if(!row||row.name!==TEST_NAME||String(row.email||'').toLowerCase()!==TEST_EMAIL)return denied();
+    }
+    const result=await testBackend(request,endpoint,body);
+    return new Response(JSON.stringify(result.data),{status:result.response.status,headers:{...HEADERS,'cache-control':'private, no-store','content-type':'application/json; charset=utf-8'}});
+  }catch{return json(502,{ok:false,message:'テスト操作の接続確認に失敗しました。'});}
 }
