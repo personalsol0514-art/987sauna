@@ -33,7 +33,7 @@ export async function onRequest({ request }) {
       return json(upstream.status, await upstream.json());
     } catch { return json(502, { ok: false, message: '空き枠を取得できませんでした。時間をおいて再読み込みしてください。' }); }
   }
-  if (path.startsWith('/reserve/public/')) {
+  if (path.startsWith('/reserve/public/') || path === '/reserve/data/prefectures.js') {
     if (!['GET','HEAD'].includes(request.method)) return json(405,{ok:false});
     try {
       const asset=await fetch(ORIGIN + path.slice('/reserve'.length), {redirect:'follow',signal:AbortSignal.timeout(15000)});
@@ -60,7 +60,7 @@ export async function onRequest({ request }) {
 }
 
 function rebaseAdminRefs(text) {
-  return text.replace(/(["'\x60])\/api\//g, '$1/reserve/api/').replace(/(["'\x60])\/admin\b/g, '$1/reserve/admin').replace(/\/?public\//g, '/reserve/public/');
+  return text.replaceAll('/data/prefectures.js', '/reserve/data/prefectures.js').replaceAll('987サウナ_予約ページ.html', '/reserve/').replace(/(["'\x60])\/api\//g, '$1/reserve/api/').replace(/(["'\x60])\/admin\b/g, '$1/reserve/admin').replace(/\/?public\//g, '/reserve/public/');
 }
 async function handleAdmin(request) {
   const path = new URL(request.url).pathname;
@@ -164,6 +164,7 @@ async function handleTestOperation(request) {
       if(!row||row.name!==TEST_NAME||String(row.email||'').toLowerCase()!==TEST_EMAIL)return denied();
     }
     const result=await testBackend(request,endpoint,body);
+    if(!result.response.ok && !result.data.message)result.data.message='保存APIエラー（'+result.response.status+' / '+String(result.data.error||'unknown')+'）。';
     return new Response(JSON.stringify(result.data),{status:result.response.status,headers:{...HEADERS,'cache-control':'private, no-store','content-type':'application/json; charset=utf-8'}});
   }catch{return json(502,{ok:false,message:'テスト操作の接続確認に失敗しました。'});}
 }
