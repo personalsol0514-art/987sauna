@@ -42,7 +42,7 @@ export async function onRequest({ request }) {
     if (!apiPattern.test(html) || !html.includes('</head>') || !html.includes('<body')) throw new Error('source_changed');
     html = html.replace(apiPattern, 'const api={endpoint:"' + API + '"};');
     html = html.replaceAll('public/', '/reserve/public/');
-    html = html.replace('</head>', '<meta name="robots" content="noindex,nofollow,noarchive"><style>.reserve-test-notice{position:sticky;top:0;z-index:100001;padding:14px 20px;background:#fff3cf;color:#362c18;text-align:center;font:600 14px/1.7 sans-serif}.reserve-test-notice a{color:inherit;text-decoration:underline}</style><script>if(!location.hash){location.hash=location.search.includes("token=")?"manage":"booking_pages"}</script></head>');
+    html = html.replace('</head>', '<meta name="robots" content="noindex,nofollow,noarchive"><style>.reserve-test-notice{position:fixed;top:0;left:0;right:0;z-index:100001;padding:14px 20px;background:#fff3cf;color:#362c18;text-align:center;font:600 14px/1.7 sans-serif}.reserve-test-notice a{color:inherit;text-decoration:underline}</style><script>if(!location.hash){location.hash=location.search.includes("token=")?"manage":"booking_pages"}</script></head>');
     html = html.replace(/<body([^>]*)>/, '<body$1><aside class="reserve-test-notice" role="status">移管テストページ｜空き枠・入力画面の確認用です。予約確定・照会・キャンセルはできません。<br><a href="https://987sauna.pages.dev/">現在のホームページへ戻る</a></aside>');
     return new Response(request.method === 'HEAD' ? null : html, { headers: { ...HEADERS, 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "form-action 'none'; frame-ancestors 'self'", 'x-content-type-options': 'nosniff' } });
   } catch (error) {
