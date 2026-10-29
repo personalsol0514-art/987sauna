@@ -60,7 +60,7 @@ export async function onRequest({ request }) {
 }
 
 function rebaseAdminRefs(text) {
-  return text.replaceAll('/data/prefectures.js', '/reserve/data/prefectures.js').replaceAll('987サウナ_予約ページ.html', '/reserve/').replace(/(["'\x60])\/api\//g, '$1/reserve/api/').replace(/(["'\x60])\/admin\b/g, '$1/reserve/admin').replace(/\/?public\//g, '/reserve/public/');
+  return text.replaceAll('/data/prefectures.js', '/reserve/data/prefectures.js').replace(/\/?987サウナ_予約ページ\.html/g, '/reserve/').replace(/(["'\x60])\/api\//g, '$1/reserve/api/').replace(/(["'\x60])\/admin\b/g, '$1/reserve/admin').replace(/\/?public\//g, '/reserve/public/');
 }
 async function handleAdmin(request) {
   const path = new URL(request.url).pathname;
