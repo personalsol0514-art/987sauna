@@ -6,6 +6,10 @@ function json(status, body) {
 }
 export async function onRequest({ request }) {
   const path = new URL(request.url).pathname;
+  if (path === '/reserve' && ['GET','HEAD'].includes(request.method)) {
+    const target=new URL(request.url);target.pathname='/reserve/';
+    return new Response(null,{status:302,headers:{...HEADERS,location:target.toString()}});
+  }
   if (path === API) {
     if (request.method !== 'POST') return json(405, { ok: false, message: 'POSTのみ利用できます。' });
     let body;
