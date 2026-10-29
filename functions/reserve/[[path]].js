@@ -82,7 +82,7 @@ async function handleAdmin(request) {
       const headers={'content-type':'application/json'};
       const session=(request.headers.get('cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('kuwana_admin_session='));
       if(session)headers.cookie=session;
-      const upstream=await fetch(ORIGIN+'/.netlify/functions/'+endpoint,{method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),headers,body:JSON.stringify(body)});
+      const upstream=await adminFetch('/.netlify/functions/'+endpoint,{method:'POST',signal:AbortSignal.timeout(15000),headers,body:JSON.stringify(body)});
       const data=await upstream.json();
       const outHeaders=new Headers({...HEADERS,'content-type':'application/json; charset=utf-8','cache-control':'private, no-store',vary:'Cookie'});
       const cookie=upstream.headers.get('set-cookie');
@@ -103,8 +103,23 @@ async function handleAdmin(request) {
     let html=await upstream.text();
     if(!html.includes('/api/')||!html.includes('</head>'))throw Error('source_changed');
     html=rebaseAdminRefs(html);
+    html=html.replace('catch(e){showAuth("login")}}','catch(e){showAuth("login");if(e.status>=500)$("#loginError").textContent=e.response?.message||"管理APIに接続できません。"}}');
     html=html.replace('</head>','<meta name="robots" content="noindex,nofollow,noarchive"><style>body{padding-top:76px}.admin-test-notice{position:fixed;top:0;left:0;right:0;z-index:100001;background:#fff3cf;color:#362c18;padding:12px 18px;text-align:center;font:600 14px/1.7 sans-serif}.admin-test-notice a{text-decoration:underline;color:inherit}</style></head>');
     html=html.replace(/<body([^>]*)>/,'<body$1><aside class="admin-test-notice" role="status">管理画面の移管テスト｜既存アカウントでログイン・閲覧できます。更新・精算・予約作成・通知送信は停止中です。<br><a href="/reserve/">予約画面のテストへ</a></aside>');
     return new Response(request.method==='HEAD'?null:html,{headers:{...HEADERS,'content-type':'text/html; charset=utf-8','content-security-policy':"form-action 'none'; frame-ancestors 'self'",'x-content-type-options':'nosniff'}});
   } catch {return new Response('管理テスト画面を読み込めませんでした。',{status:502,headers:{...HEADERS,'content-type':'text/plain; charset=utf-8'}});}
+}
+
+async function adminFetch(path, init) {
+  let target=new URL(path,ORIGIN);
+  for(let hop=0;hop<4;hop++) {
+    const response=await fetch(target.toString(),{...init,redirect:'manual'});
+    if(![301,302,303,307,308].includes(response.status))return response;
+    const location=response.headers.get('location');
+    if(!location)throw Error('invalid_redirect');
+    const next=new URL(location,target);
+    if(next.origin!==ORIGIN)throw Error('unexpected_redirect_origin');
+    target=next;
+  }
+  throw Error('too_many_redirects');
 }
