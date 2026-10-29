@@ -5,6 +5,8 @@ function json(status, body) {
   return new Response(JSON.stringify(body), { status, headers: { ...HEADERS, 'content-type': 'application/json; charset=utf-8' } });
 }
 export async function onRequest({ request }) {
+  const adminResponse = await handleAdmin(request);
+  if (adminResponse) return adminResponse;
   const path = new URL(request.url).pathname;
   if (path === '/reserve' && ['GET','HEAD'].includes(request.method)) {
     const target=new URL(request.url);target.pathname='/reserve/';
@@ -33,6 +35,7 @@ export async function onRequest({ request }) {
     if (!['GET','HEAD'].includes(request.method)) return json(405,{ok:false});
     try {
       const asset=await fetch(ORIGIN + path.slice('/reserve'.length), {redirect:'follow',signal:AbortSignal.timeout(15000)});
+      if (path.endsWith('.js') && asset.ok) return new Response(request.method==='HEAD'?null:rebaseAdminRefs(await asset.text()),{headers:{...HEADERS,'content-type':'application/javascript; charset=utf-8','x-content-type-options':'nosniff'}});
       return new Response(request.method==='HEAD'?null:asset.body,{status:asset.status,headers:{...HEADERS,'content-type':asset.headers.get('content-type')||'application/octet-stream','x-content-type-options':'nosniff'}});
     } catch {return new Response('Asset unavailable',{status:502,headers:HEADERS});}
   }
@@ -52,4 +55,56 @@ export async function onRequest({ request }) {
   } catch (error) {
     return new Response('診断: ' + error.message + '。テストページを読み込めませんでした。公開中の予約画面の構成を確認してください。', { status: 502, headers: { ...HEADERS, 'content-type': 'text/plain; charset=utf-8' } });
   }
+}
+
+function rebaseAdminRefs(text) {
+  return text.replace(/(["'\x60])\/api\//g, '$1/reserve/api/').replace(/(["'\x60])\/admin\b/g, '$1/reserve/admin').replace(/\/?public\//g, '/reserve/public/');
+}
+async function handleAdmin(request) {
+  const path = new URL(request.url).pathname;
+  const routes = {
+    '/reserve/api/admin-auth': ['admin-auth', new Set(['login', 'me', 'logout', 'listStaff'])],
+    '/reserve/api/admin-reservations': ['admin-reservations', new Set(['listReservations'])],
+    '/reserve/api/slot-control': ['slot-control', new Set(['listSlotControls'])],
+    '/reserve/api/settlement': ['settlement', new Set(['listOptions'])],
+    '/reserve/api/line-customers': ['line-customers', new Set(['list'])],
+  };
+  if (Object.hasOwn(routes, path)) {
+    if (request.method !== 'POST') return json(405, {ok:false, message:'POSTのみ利用できます。'});
+    const origin=request.headers.get('origin');
+    if(origin && origin!==new URL(request.url).origin)return json(403,{ok:false,message:'同じテストページから操作してください。'});
+    if(!request.headers.get('content-type')?.includes('application/json'))return json(415,{ok:false,message:'JSON形式で送信してください。'});
+    let body;
+    try {const text=await request.text();if(text.length>16384)throw Error('size');body=JSON.parse(text);} catch {return json(400,{ok:false,message:'リクエストを確認してください。'});}
+    const [endpoint, allowed] = routes[path];
+    if (!allowed.has(body?.action)) return json(403, {ok:false,error:'preview_read_only',message:'管理画面の移管テスト中です。更新・精算・予約作成・通知・パスワード変更は実行できません。'});
+    try {
+      const headers={'content-type':'application/json'};
+      const session=(request.headers.get('cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('kuwana_admin_session='));
+      if(session)headers.cookie=session;
+      const upstream=await fetch(ORIGIN+'/.netlify/functions/'+endpoint,{method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),headers,body:JSON.stringify(body)});
+      const data=await upstream.json();
+      const outHeaders=new Headers({...HEADERS,'content-type':'application/json; charset=utf-8','cache-control':'private, no-store',vary:'Cookie'});
+      const cookie=upstream.headers.get('set-cookie');
+      if(endpoint==='admin-auth' && cookie?.startsWith('kuwana_admin_session=')) outHeaders.set('set-cookie',cookie.replace(/;\s*Domain=[^;]+/ig,'').replace(/;\s*Path=\//i,'; Path=/reserve'));
+      return new Response(JSON.stringify(data),{status:upstream.status,headers:outHeaders});
+    } catch {return json(502,{ok:false,message:'管理APIに接続できませんでした。時間をおいて再読み込みしてください。'});}
+  }
+  const pages={
+    '/reserve/admin':'/admin',
+    '/reserve/admin/':'/admin',
+    '/reserve/admin/line-customers':'/admin/line-customers',
+  };
+  if(!Object.hasOwn(pages,path))return null;
+  if(!['GET','HEAD'].includes(request.method))return json(405,{ok:false});
+  try {
+    const upstream=await fetch(ORIGIN+pages[path],{redirect:'follow',signal:AbortSignal.timeout(15000)});
+    if(!upstream.ok)throw Error('upstream');
+    let html=await upstream.text();
+    if(!html.includes('/api/')||!html.includes('</head>'))throw Error('source_changed');
+    html=rebaseAdminRefs(html);
+    html=html.replace('</head>','<meta name="robots" content="noindex,nofollow,noarchive"><style>body{padding-top:76px}.admin-test-notice{position:fixed;top:0;left:0;right:0;z-index:100001;background:#fff3cf;color:#362c18;padding:12px 18px;text-align:center;font:600 14px/1.7 sans-serif}.admin-test-notice a{text-decoration:underline;color:inherit}</style></head>');
+    html=html.replace(/<body([^>]*)>/,'<body$1><aside class="admin-test-notice" role="status">管理画面の移管テスト｜既存アカウントでログイン・閲覧できます。更新・精算・予約作成・通知送信は停止中です。<br><a href="/reserve/">予約画面のテストへ</a></aside>');
+    return new Response(request.method==='HEAD'?null:html,{headers:{...HEADERS,'content-type':'text/html; charset=utf-8','content-security-policy':"form-action 'none'; frame-ancestors 'self'",'x-content-type-options':'nosniff'}});
+  } catch {return new Response('管理テスト画面を読み込めませんでした。',{status:502,headers:{...HEADERS,'content-type':'text/plain; charset=utf-8'}});}
 }
