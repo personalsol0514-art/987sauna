@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LINE顧客管理｜987サウナ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600&family=Noto+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#211810;--wood:#4b3020;--gold:#bc9659;--cream:#f8f2e7;--paper:#fffdf8;--line:#e5d8c3;--muted:#786b5c;--green:#2f6b4f;--red:#8c3a32}
+    *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:14px/1.6 'Noto Sans JP',sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit}.top{background:var(--ink);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:17px clamp(16px,3vw,38px);border-bottom:2px solid var(--gold)}.brand{display:flex;align-items:center;gap:14px}.brand img{width:52px;height:52px;object-fit:contain;background:#fff;padding:4px}.brand strong{font:600 21px 'Shippori Mincho',serif;letter-spacing:.1em}.top a{font-size:13px;text-decoration:none;border:1px solid #9c8c76;padding:8px 12px}.page{max-width:1450px;margin:auto;padding:30px clamp(16px,3vw,38px) 60px}.eyebrow{font-size:11px;letter-spacing:.23em;color:var(--red);font-weight:600}.heading{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}.heading h1{font:600 34px 'Shippori Mincho',serif;letter-spacing:.12em;margin:4px 0}.heading p{color:var(--muted);margin:0}.button{border:1px solid var(--wood);background:var(--wood);color:white;padding:10px 20px;min-height:43px}.button:disabled{opacity:.48;cursor:not-allowed}.button.subtle{background:transparent;color:var(--wood)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:25px 0}.stat{background:var(--paper);padding:17px 20px;border:1px solid var(--line);border-top:3px solid var(--gold)}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;font:600 30px 'Shippori Mincho',serif;margin-top:2px}.workspace{display:grid;grid-template-columns:minmax(310px,430px) minmax(0,1fr);gap:16px;min-height:550px}.panel{background:var(--paper);border:1px solid var(--line);min-width:0}.list-head{padding:19px;border-bottom:1px solid var(--line)}.list-head label{display:block;font-weight:600;margin-bottom:9px}.search{width:100%;border:1px solid var(--line);padding:11px 13px;background:white;outline-color:var(--gold)}.list-meta{margin-top:10px;color:var(--muted);font-size:12px}.contact-list{max-height:650px;overflow:auto}.contact{display:block;width:100%;text-align:left;padding:16px 19px;background:transparent;border:0;border-bottom:1px solid var(--line)}.contact:hover,.contact.selected{background:#f5ead8}.contact.selected{box-shadow:inset 3px 0 var(--gold)}.contact-line{display:flex;justify-content:space-between;align-items:center;gap:10px}.contact-name{font-weight:600;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.contact-sub{font-size:12px;color:var(--muted);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.badge{font-size:11px;padding:3px 9px;white-space:nowrap;border-radius:20px;background:#e5eee8;color:var(--green)}.badge.blocked{background:#f3e5e2;color:var(--red)}.detail{padding:24px clamp(18px,3vw,34px)}.detail h2{font:600 29px 'Shippori Mincho',serif;margin:0 0 18px}.detail .caption{color:var(--muted);margin:0 0 4px;font-size:12px}.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin:0 0 28px}.fact{border-bottom:1px solid var(--line);padding:8px 0;min-width:0}.fact dt{font-size:11px;color:var(--muted)}.fact dd{margin:5px 0 0;overflow-wrap:anywhere}.form-grid{display:grid;gap:18px}.field label{display:block;font-weight:600;margin-bottom:7px}.field small{display:block;color:var(--muted);margin-top:5px}.field input,.field select,.field textarea{width:100%;border:1px solid #c9bca9;background:white;padding:11px 12px;color:var(--ink)}.field textarea{min-height:150px;resize:vertical}.form-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.message{min-height:24px;color:var(--muted);font-size:13px}.message.error{color:var(--red)}.message.ok{color:var(--green)}.empty{padding:35px 22px;color:var(--muted);line-height:1.9}.hidden{display:none!important}@media(max-width:800px){.workspace{grid-template-columns:1fr}.contact-list{max-height:330px}.facts{grid-template-columns:1fr}.heading h1{font-size:28px}.brand strong{font-size:17px}}
+  </style>
+<meta name="robots" content="noindex,nofollow,noarchive"></head>
+<body>
+  <header class="top"><div class="brand"><img src="/reserve/public/images/ロゴ_987サウナ_墨_背景透過.png" alt="987サウナ"><strong>LINE顧客管理</strong></div><a href="/reserve/admin">予約管理へ戻る</a></header>
+  <main class="page">
+    <div class="heading"><div><div class="eyebrow">987 SAUNA / CUSTOMER</div><h1>LINE顧客管理</h1><p>友だち情報を確認し、利用状況・タグ・メモを管理します。</p></div><button class="button subtle" id="reload" type="button">最新の情報を読み込む</button></div>
+    <p id="accessMessage" class="message error hidden" role="alert"></p>
+    <div class="stats"><div class="stat"><span>記録済み</span><strong id="countAll">—</strong></div><div class="stat"><span>友だち</span><strong id="countActive">—</strong></div><div class="stat"><span>ブロック</span><strong id="countBlocked">—</strong></div></div>
+    <div class="workspace"><section class="panel"><div class="list-head"><label for="search">友だちを検索</label><input class="search" id="search" type="search" placeholder="表示名・LINE ID・タグ・メモ"><div class="list-meta" id="listMeta">読み込み中…</div></div><div class="contact-list" id="contactList"></div></section>
+      <section class="panel detail" id="detail"><div class="empty" id="detailEmpty">左の一覧から顧客を選択してください。</div><div id="detailBody" class="hidden"><p class="caption">LINE表示名</p><h2 id="detailName"></h2><dl class="facts"><div class="fact"><dt>LINEユーザーID</dt><dd id="detailId"></dd></div><div class="fact"><dt>友だち状態</dt><dd id="detailStatus"></dd></div><div class="fact"><dt>初回追加日時</dt><dd id="detailAdded"></dd></div><div class="fact"><dt>最終更新日時</dt><dd id="detailUpdated"></dd></div><div class="fact"><dt>再追加回数</dt><dd id="detailReadds"></dd></div><div class="fact"><dt>予約連携</dt><dd id="detailReservation"></dd></div></dl><form id="editForm" class="form-grid"><div class="field"><label for="usage">利用状況</label><select id="usage"><option value="">未設定</option><option>未確認</option><option>検討中</option><option>予約済み</option><option>利用済み</option></select><small>予約情報との自動連携ではなく、スタッフが確認して設定します。</small></div><div class="field"><label for="tags">タグ</label><input id="tags" maxlength="200" placeholder="例：初回来店, リピーター"><small>複数のタグはカンマで区切ります。</small></div><div class="field"><label for="memo">顧客メモ</label><textarea id="memo" maxlength="1000" placeholder="接客時に必要なことを記録"></textarea></div><div class="form-actions"><button class="button" id="save" type="submit">変更を保存</button><span class="message" id="message" role="status"></span></div></form></div></section></div>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let contacts = [];
+    let selectedId = '';
+    async function request(action, data = {}) {
+      const response = await fetch('/reserve/api/line-customers', { method:'POST', credentials:'same-origin', headers:{'content-type':'application/json'}, body:JSON.stringify({action,...data}) });
+      const result = await response.json().catch(() => ({}));
+      if (response.status === 401) { location.href = '/reserve/admin'; throw new Error('ログインが必要です。'); }
+      if (response.status === 403) {
+        document.querySelectorAll('.stats,.workspace,#reload').forEach((element) => element.classList.add('hidden'));
+        $('accessMessage').textContent = result.message || 'この画面を利用する権限がありません。';
+        $('accessMessage').classList.remove('hidden');
+        throw new Error($('accessMessage').textContent);
+      }
+      if (!response.ok || !result.ok) throw new Error(result.error === 'sheet_unavailable' ? 'スプレッドシートを読み込めませんでした。' : '操作に失敗しました。');
+      return result;
+    }
+    function setMessage(value, kind = '') { $('message').textContent = value; $('message').className = 'message ' + kind; }
+    function selected() { return contacts.find((contact) => contact.userId === selectedId); }
+    function showDetail(contact) {
+      $('detailEmpty').classList.toggle('hidden', !!contact);
+      $('detailBody').classList.toggle('hidden', !contact);
+      if (!contact) return;
+      $('detailName').textContent = contact.displayName || '表示名未取得';
+      $('detailId').textContent = contact.userId;
+      $('detailStatus').textContent = contact.friendStatus || '未確認';
+      $('detailAdded').textContent = contact.addedAt || '—';
+      $('detailUpdated').textContent = contact.updatedAt || '—';
+      $('detailReadds').textContent = String(contact.readdCount || 0);
+      $('detailReservation').textContent = contact.reservationLink || '未連携';
+      $('usage').value = contact.usageStatus || '';
+      $('tags').value = contact.tags || '';
+      $('memo').value = contact.memo || '';
+      setMessage('');
+    }
+    function renderList() {
+      const query = $('search').value.trim().toLocaleLowerCase();
+      const filtered = contacts.filter((contact) => [contact.displayName,contact.userId,contact.tags,contact.memo,contact.usageStatus].some((value) => String(value || '').toLocaleLowerCase().includes(query)));
+      $('listMeta').textContent = `${filtered.length}件を表示 / 記録済み${contacts.length}件`;
+      const list = $('contactList'); list.replaceChildren();
+      if (!filtered.length) { const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = contacts.length ? '該当する顧客がいません。' : 'まだ記録された友だちはいません。Webhookの接続後に追加された方から記録されます。'; list.append(empty); return; }
+      for (const contact of filtered) {
+        const button = document.createElement('button'); button.type='button'; button.className = 'contact' + (contact.userId === selectedId ? ' selected' : '');
+        const line = document.createElement('div'); line.className='contact-line';
+        const name = document.createElement('span'); name.className='contact-name'; name.textContent=contact.displayName || '表示名未取得';
+        const badge = document.createElement('span'); badge.className='badge' + (contact.friendStatus === 'ブロック' ? ' blocked' : ''); badge.textContent=contact.friendStatus || '未確認';
+        line.append(name,badge);
+        const sub=document.createElement('div'); sub.className='contact-sub'; sub.textContent=[contact.usageStatus,contact.tags,contact.addedAt].filter(Boolean).join(' · ') || contact.userId;
+        button.append(line,sub); button.addEventListener('click',()=>{selectedId=contact.userId; renderList(); showDetail(contact);}); list.append(button);
+      }
+    }
+    async function load() {
+      $('reload').disabled=true; $('listMeta').textContent='読み込み中…';
+      try { const result=await request('list'); contacts=result.contacts; $('countAll').textContent=contacts.length; $('countActive').textContent=contacts.filter((c)=>c.friendStatus==='友だち').length; $('countBlocked').textContent=contacts.filter((c)=>c.friendStatus==='ブロック').length; renderList(); showDetail(selected()); }
+      catch(error){ $('listMeta').textContent=error.message; $('contactList').replaceChildren(); setMessage(error.message,'error'); }
+      finally { $('reload').disabled=false; }
+    }
+    $('editForm').addEventListener('submit',async(event)=>{event.preventDefault(); if(!selectedId)return; const save=$('save'); save.disabled=true; setMessage('保存中…'); const fields={userId:selectedId,usageStatus:$('usage').value,tags:$('tags').value.trim(),memo:$('memo').value.trim()}; try {await request('update',fields); Object.assign(selected(),fields); renderList(); setMessage('保存しました。','ok');} catch(error){setMessage(error.message,'error');} finally{save.disabled=false;}});
+    $('search').addEventListener('input',renderList); $('reload').addEventListener('click',load); load();
+  </script>
+</body>
+</html>
