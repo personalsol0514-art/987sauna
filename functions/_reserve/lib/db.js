@@ -14,7 +14,11 @@ function databaseUrl() {
 function getPool() {
   const current = scope.getStore();
   if (!current) throw new Error("getPool must be called inside withPool");
-  if (!current.pool) current.pool = new Pool({ connectionString: databaseUrl() });
+  if (!current.pool) {
+    current.pool = new Pool({ connectionString: databaseUrl() });
+    // 待機中の接続が切れたときの通知。受け手が無いと、処理全体が落ちた扱いになる
+    current.pool.on("error", (error) => console.error("db pool error", error?.message));
+  }
   return current.pool;
 }
 
