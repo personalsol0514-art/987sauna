@@ -66,14 +66,23 @@ Worker の変数に `SITE_ORIGIN`（公開URL）も設定してください。**
 
 ## 5. 本番への切り替え（確認が終わってから）
 
-1. Netlify 側の毎朝の処理と外部送信を止める
-2. このブランチを `main` に取り込む
-3. `cron-worker` を公開する
-4. LINE Developers の Webhook URL を `https://公開URL/reserve/api/line-webhook` に変える
-5. HPの予約ボタン（`index.html` の5か所。今は STORES 宛）を `/reserve/` に変える
-6. 古い `987sauna-kuwana.netlify.app` を新しいURLへ転送する（送信済みメールのリンクのため）
+**このブランチを `main` に取り込むと、HPの予約ボタン5か所が STORES から `/reserve/` に変わります。** STORES の予約ページも残っている間は、同じ枠に両方から予約が入らないよう、切り替えの前に STORES 側の枠を閉じてください。
 
-**戻すとき：** 取り込みを元に戻せば、今のHPに戻ります。データベースは同じなので、予約データは失われません。
+1. STORES の新規受付を止める（既存の予約の扱いも決める）
+2. Pages の本番に環境変数を設定する（`OUTBOUND_DELIVERY_ENABLED=true` と本番の `DATABASE_URL`）
+3. このブランチを `main` に取り込む
+4. `/reserve/` で空き枠が出ること、`/reserve/admin` にログインできることを確認する
+5. かずや側で Netlify を転送に切り替える（毎朝の処理もここで止まる。転送の設定は用意済み）
+6. `cron-worker` を公開する
+7. LINE Developers の Webhook URL を `https://公開URL/reserve/api/line-webhook` に変える
+
+5と6の順番を守ってください。同時に動くと、リマインドメールやシート更新が二重になります。
+
+**戻すとき：** 取り込みを元に戻せば、今のHPに戻ります。Netlify の転送も外せば、今の予約システムに戻ります。データベースは同じなので、予約データは失われません。
+
+## ブランチを本番に入れる前の注意
+
+リポジトリは公開設定です。`functions/` や `cron-worker/` のファイルもサイトから読める場所に置かれますが、秘密の値は入っていません。
 
 ## 確認すること
 
