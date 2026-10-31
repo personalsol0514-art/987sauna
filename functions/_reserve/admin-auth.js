@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+const { verifyPassword, hashPassword } = require("./lib/password");
 const crypto = require("crypto");
 const {
   clearSessionCookie,
@@ -246,7 +246,7 @@ async function setup(payload) {
       return json(409, { ok: false, error: "setup_already_completed" });
     }
     for (const account of accounts) {
-      const passwordHash = await bcrypt.hash(String(account.password), 12);
+      const passwordHash = await hashPassword(String(account.password));
       await client.query(
         `insert into admin_users (login_id, email, name, password_hash, role, is_active)
          values ($1, null, $2, $3, $4, true)`,
@@ -284,7 +284,7 @@ async function login(payload, event) {
   // メールで招待したスタッフは、メールアドレスだけで入れる（オーナーの判断）。オーナーと共用アカウントはパスワードが必要
   if (!isLinkStaff(user)) {
     if (!user.password_hash || !password) return fail();
-    const ok = await bcrypt.compare(password, user.password_hash);
+    const ok = await verifyPassword(password, user.password_hash);
     if (!ok) return fail();
   }
 
@@ -307,11 +307,11 @@ async function changePassword(payload, event) {
   const isSelf = targetLoginId === current.login_id;
   if (!isSelf && current.role !== "owner") return json(403, { ok: false, error: "forbidden" });
   if (isSelf) {
-    const ok = await bcrypt.compare(currentPassword, current.password_hash || "");
+    const ok = await verifyPassword(currentPassword, current.password_hash || "");
     if (!ok) return json(403, { ok: false, message: "現在のパスワードが違います。" });
   }
 
-  const passwordHash = await bcrypt.hash(newPassword, 12);
+  const passwordHash = await hashPassword(newPassword);
   const result = await getPool().query(
     "update admin_users set password_hash = $1, updated_at = now() where lower(login_id) = lower($2) and is_active = true returning id",
     [passwordHash, targetLoginId],
@@ -385,7 +385,7 @@ async function resetPassword(payload) {
       await client.query("rollback");
       return json(400, { ok: false, error: "invalid_or_expired_token", message: "リセットURLが無効、または期限切れです。" });
     }
-    const passwordHash = await bcrypt.hash(newPassword, 12);
+    const passwordHash = await hashPassword(newPassword);
     await client.query("update admin_users set password_hash = $1, updated_at = now() where id = $2", [passwordHash, row.admin_user_id]);
     await client.query("update password_reset_tokens set used_at = now() where id = $1", [row.id]);
     await client.query("commit");
