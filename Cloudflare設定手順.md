@@ -40,7 +40,7 @@
 | `LINE_CHANNEL_ACCESS_TOKEN` | お店の公式LINE（友だち登録の記録用） |
 | `LINE_CHANNEL_SECRET` | お店の公式LINE |
 
-`OUTBOUND_DELIVERY_ENABLED`（送信の有効化）と、プレビューの `SITE_ORIGIN` は `wrangler.toml` に書いてあります。本番の `SITE_ORIGIN` は、公開URLが決まったら同じファイルに追記します。
+`OUTBOUND_DELIVERY_ENABLED`（送信の有効化）と、プレビュー・本番それぞれの `SITE_ORIGIN` は `wrangler.toml` に書いてあります。本番URLは `https://987sauna.pages.dev` です。
 
 **プレビューも本番と同じデータを使います。** プレビューで予約や精算をすると、本物の記録に残ります。プレビューからはメール・Discord・シートへの送信はしません。
 
