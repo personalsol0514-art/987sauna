@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const jwt = require("../vendor/npm.js").jwt;
 
 const COOKIE_NAME = "kuwana_admin_session";
 const SESSION_DAYS = 7;

@@ -91,3 +91,14 @@ Worker の変数に `SITE_ORIGIN`（公開URL）も設定してください。**
 - 電話予約、キャンセル、復元、来店なし、精算（管理画面）
 - 通知（メール、Discord、シート）
 - 毎朝の処理
+
+## 部品の更新（開発者向け）
+
+Cloudflare Pages はビルド時に npm の部品を入れないため、Neon への接続とログインの署名に使う部品を `functions/_reserve/vendor/npm.js` に同梱しています。部品を新しくするときは、次のコマンドで作り直します。
+
+```bash
+npm install
+printf 'module.exports={neon:require("@neondatabase/serverless"),jwt:require("jsonwebtoken")};' > .vendor-entry.js
+npx esbuild .vendor-entry.js --bundle --platform=node --format=cjs --target=es2022 --legal-comments=eof --outfile=functions/_reserve/vendor/npm.js
+rm .vendor-entry.js
+```

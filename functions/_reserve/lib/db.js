@@ -1,5 +1,5 @@
 const { AsyncLocalStorage } = require("node:async_hooks");
-const { Pool } = require("@neondatabase/serverless");
+const { Pool } = require("../vendor/npm.js").neon;
 
 // Cloudflare Workers では、ある通信で開いた接続を別の通信で使えない。
 // そのため接続は1回の処理ごとに作り、処理と後処理が全部終わってから閉じる
