@@ -39,6 +39,8 @@
 | `ADMIN_RECOVERY_EMAIL` | パスワード再設定の送り先 |
 | `LINE_CHANNEL_ACCESS_TOKEN` | お店の公式LINE（友だち登録の記録用） |
 | `LINE_CHANNEL_SECRET` | お店の公式LINE |
+| `MAI_LINE_TOKEN` | エラー時に「mai」から通知するためのアクセストークン |
+| `MAI_LINE_TO` | エラー通知の送信先 |
 
 `OUTBOUND_DELIVERY_ENABLED`（送信の有効化）と、プレビュー・本番それぞれの `SITE_ORIGIN` は `wrangler.toml` に書いてあります。本番URLは `https://987sauna.pages.dev` です。
 
