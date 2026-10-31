@@ -7,6 +7,11 @@ pages_build_output_dir = "."
 compatibility_date = "2026-10-01"
 compatibility_flags = ["nodejs_compat"]
 
+# 本番の設定（秘密の値ではないのでここに書く。秘密の値は Cloudflare の画面で Secret として登録する）
+# メール・Discord・シートへの送信を有効にする。プレビューには書かないので、プレビューからは送信されない
+[vars]
+OUTBOUND_DELIVERY_ENABLED = "true"
+
 # プレビュー環境の公開URL（秘密の値ではないのでここに書く。DATABASE_URL などの秘密の値は画面で Secret として登録する）
 [env.preview.vars]
 SITE_ORIGIN = "https://reserve-cloudflare.987sauna.pages.dev"

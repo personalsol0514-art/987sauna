@@ -26,42 +26,27 @@
 
 ## 3. 環境変数（Pages の Settings → Variables and Secrets）
 
-値は、かずやから安全な方法で受け取ってください。**すべて「Secret」で登録してください。** `wrangler.toml` を使う場合、画面の通常の環境変数は使われない可能性があるためです。
+すべて「Secret」で、**本番（Production）とプレビュー（Preview）の両方に同じ値**を登録してください。値は、かずやから受け取ってください。
 
-| 名前 | 内容 | 種類 |
-|---|---|---|
-| `DATABASE_URL` | Neon の接続先 | Secret |
-| `ADMIN_JWT_SECRET` | ログインの署名用（32文字以上） | Secret |
-| `ADMIN_SETUP_TOKEN` | 初期設定用 | Secret |
-| `ADMIN_RECOVERY_EMAIL` | パスワード再設定の送り先 | 通常 |
-| `DISCORD_WEBHOOK_URL` | お店の Discord 通知 | Secret |
-| `GAS_MAIL_URL` | メール・シート用の GAS の URL | Secret |
-| `GAS_MAIL_TOKEN` | GAS の合言葉 | Secret |
-| `LINE_CHANNEL_ACCESS_TOKEN` | お店の公式LINE | Secret |
-| `LINE_CHANNEL_SECRET` | お店の公式LINE | Secret |
-| `OUTBOUND_DELIVERY_ENABLED` | **本番だけ** `true`。プレビューには設定しない | 通常 |
-| `SITE_ORIGIN` | 公開URL（例：`https://example.com`、最後の `/` なし） | 通常 |
-| `CRON_SECRET` | 毎朝の処理の合言葉（長いランダムな文字列） | Secret |
-| `MAI_LINE_TOKEN` | エラー通知用のLINE | Secret |
-| `MAI_LINE_TO` | エラー通知の宛先 | Secret |
+| 名前 | 内容 |
+|---|---|
+| `DATABASE_URL` | 予約データの保管場所（Neon）につなぐ住所。このサイト専用の鍵で、表を作り替える権限はありません |
+| `ADMIN_JWT_SECRET` | 管理画面のログインを守る合言葉 |
+| `CRON_SECRET` | 毎朝8時の処理を呼ぶための合言葉 |
+| `DISCORD_WEBHOOK_URL` | お店の Discord への通知先 |
+| `GAS_MAIL_URL` | メール送信・シート記録の窓口 |
+| `GAS_MAIL_TOKEN` | 上の窓口の合言葉 |
+| `ADMIN_RECOVERY_EMAIL` | パスワード再設定の送り先 |
+| `LINE_CHANNEL_ACCESS_TOKEN` | お店の公式LINE（友だち登録の記録用） |
+| `LINE_CHANNEL_SECRET` | お店の公式LINE |
 
-**プレビューの `DATABASE_URL` は、本番と別にしてください。** 同じにすると、試験の予約や精算が本物のデータに混ざります。Neon のブランチ機能で試験用のコピーを作り、その接続先を設定します。
+`OUTBOUND_DELIVERY_ENABLED`（送信の有効化）と、プレビューの `SITE_ORIGIN` は `wrangler.toml` に書いてあります。本番の `SITE_ORIGIN` は、公開URLが決まったら同じファイルに追記します。
 
-`OUTBOUND_DELIVERY_ENABLED` が無いと、メール・Discord・シートへの送信は全部止まります。
+**プレビューも本番と同じデータを使います。** プレビューで予約や精算をすると、本物の記録に残ります。プレビューからはメール・Discord・シートへの送信はしません。
 
-## 4. 毎朝8時の処理（Worker を1つ追加）
+## 4. 毎朝8時の処理
 
-Pages には定期実行が無いので、`cron-worker/` を別の Worker として公開します。
-
-```bash
-cd cron-worker
-npx wrangler deploy
-npx wrangler secret put CRON_SECRET     # Pages と同じ値
-npx wrangler secret put MAI_LINE_TOKEN
-npx wrangler secret put MAI_LINE_TO
-```
-
-Worker の変数に `SITE_ORIGIN`（公開URL）も設定してください。**切り替えが終わるまで、この Worker は動かさないでください。** Netlify の毎朝の処理と同時に動くと、リマインドメールやシート更新が二重になります。
+Cloudflare 側の設定は不要です。切り替え後に、かずやのサーバーから毎朝8時に `/reserve/api/cron-daily` を呼びます（`CRON_SECRET` で守られています）。
 
 ## 5. 本番への切り替え（確認が終わってから）
 
@@ -73,16 +58,16 @@ Worker の変数に `SITE_ORIGIN`（公開URL）も設定してください。**
 4. このブランチを `main` に取り込む
 5. `/reserve/` で空き枠が出ること、`/reserve/admin` にログインできることを確認する
 6. かずや側で Netlify を転送に切り替える（毎朝の処理もここで止まる。転送の設定は用意済み）
-7. `cron-worker` を公開する
+7. かずや側で、毎朝8時の呼び出しを有効にする
 8. LINE Developers の Webhook URL を `https://公開URL/reserve/api/line-webhook` に変える
 
-6と7の順番を守ってください。同時に動くと、リマインドメールやシート更新が二重になります。
+6と7の順番を守ってください。Netlify と同時に動くと、リマインドメールやシート更新が二重になります。
 
 **戻すとき：** 取り込みを元に戻せば、今のHPに戻ります。Netlify の転送も外せば、今の予約システムに戻ります。データベースは同じなので、予約データは失われません。
 
 ## ブランチを本番に入れる前の注意
 
-リポジトリは公開設定です。`functions/` や `cron-worker/` のファイルもサイトから読める場所に置かれますが、秘密の値は入っていません。
+リポジトリは公開設定です。`functions/` のファイルもサイトから読める場所に置かれますが、秘密の値は入っていません。
 
 ## 確認すること
 

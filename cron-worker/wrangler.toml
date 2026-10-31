@@ -1,6 +1,0 @@
-name = "987sauna-reserve-cron"
-main = "index.js"
-compatibility_date = "2026-10-01"
-
-[triggers]
-crons = ["0 23 * * *"] # 日本時間の毎朝8時
