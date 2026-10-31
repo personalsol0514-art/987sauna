@@ -1,0 +1,8 @@
+# Cloudflare Pages の設定（予約システム用）。
+# 予約・管理・精算の処理が Node.js の部品（データベース接続など）を使うため、nodejs_compat が必要。
+# このファイルがあるデプロイでは、ここに書いた項目が Cloudflare の画面より優先される。
+# 環境変数はここに書かず、画面で「Secret」として登録する（このリポジトリは公開設定のため）
+name = "987sauna"
+pages_build_output_dir = "."
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
