@@ -26,7 +26,7 @@
 
 ## 3. 環境変数（Pages の Settings → Variables and Secrets）
 
-すべて「Secret」で、**本番（Production）とプレビュー（Preview）の両方に同じ値**を登録してください。値は、かずやから受け取ってください。
+設定する値はすべて「Secret」で、**本番（Production）とプレビュー（Preview）の両方に同じ値**を登録してください。値は、かずやから受け取ってください。下の最初の9項目は、かずやから登録済みと報告されています。末尾の mai 通知用2項目は、かずやの指示で設定を保留しています。
 
 | 名前 | 内容 |
 |---|---|
@@ -41,6 +41,8 @@
 | `LINE_CHANNEL_SECRET` | お店の公式LINE |
 | `MAI_LINE_TOKEN` | エラー時に「mai」から通知するためのアクセストークン |
 | `MAI_LINE_TO` | エラー通知の送信先 |
+
+mai 通知用2項目が未設定の間は、予約処理でエラーが起きても mai への通知は届きません。設定後は両方の環境を再デプロイしてください。
 
 `OUTBOUND_DELIVERY_ENABLED`（送信の有効化）と、プレビュー・本番それぞれの `SITE_ORIGIN` は `wrangler.toml` に書いてあります。本番URLは `https://987sauna.pages.dev` です。
 
