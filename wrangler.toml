@@ -18,3 +18,5 @@ SITE_ORIGIN = "https://987sauna.pages.dev"
 SITE_ORIGIN = "https://reserve-cloudflare.987sauna.pages.dev"
 # プレビューからはメール・Discord・シートに送らない（本物のお客様に届かないように）
 OUTBOUND_DELIVERY_ENABLED = "false"
+# 本番DBを使うプレビューから、通知なしの予約・精算を作らせない
+RESERVE_READ_ONLY = "true"

@@ -25,7 +25,23 @@ const PAGES = {
   "/reserve/admin/reset": "/reserve/admin/",
   "/reserve/admin/line-customers": "/reserve/admin/line-customers/",
 };
-const ENV_KEYS = ["DATABASE_URL", "ADMIN_JWT_SECRET", "ADMIN_SETUP_TOKEN", "ADMIN_RECOVERY_EMAIL", "DISCORD_WEBHOOK_URL", "GAS_MAIL_URL", "GAS_MAIL_TOKEN", "LINE_CHANNEL_ACCESS_TOKEN", "LINE_CHANNEL_SECRET", "OUTBOUND_DELIVERY_ENABLED", "SITE_ORIGIN", "MAI_LINE_TOKEN", "MAI_LINE_TO", "CRON_SECRET"];
+const ENV_KEYS = ["DATABASE_URL", "ADMIN_JWT_SECRET", "ADMIN_SETUP_TOKEN", "ADMIN_RECOVERY_EMAIL", "DISCORD_WEBHOOK_URL", "GAS_MAIL_URL", "GAS_MAIL_TOKEN", "LINE_CHANNEL_ACCESS_TOKEN", "LINE_CHANNEL_SECRET", "OUTBOUND_DELIVERY_ENABLED", "RESERVE_READ_ONLY", "SITE_ORIGIN", "MAI_LINE_TOKEN", "MAI_LINE_TO", "CRON_SECRET"];
+const PREVIEW_READ_ACTIONS = {
+  "admin-auth": new Set(["me", "setupStatus", "login", "logout", "listStaff"]),
+  "admin-reservations": new Set(["listReservations"]),
+  reservations: new Set(["listAvailability", "lookupBooking"]),
+  settlement: new Set(["listOptions"]),
+  "slot-control": new Set(["listSlotControls"]),
+};
+
+function previewWriteBlocked(request, url, body) {
+  if (process.env.RESERVE_READ_ONLY !== "true" || request.method === "OPTIONS") return false;
+  if (request.method !== "POST") return true;
+  let action;
+  try { action = JSON.parse(body || "{}").action; } catch { return true; }
+  const name = url.pathname.match(/^\/reserve\/api\/([a-z-]+)\/?$/)?.[1];
+  return !PREVIEW_READ_ACTIONS[name]?.has(action);
+}
 
 function failure(message) {
   return new Response(JSON.stringify({ ok: false, error: "server_error", message }), { status: 500, headers: { "content-type": "application/json; charset=utf-8" } });
@@ -66,6 +82,12 @@ async function runApi(request, url, handler, waitUntil) {
     isBase64Encoded: false,
     defer: (promise) => deferred.push(promise),
   };
+  if (previewWriteBlocked(request, url, event.body)) {
+    return new Response(JSON.stringify({ ok: false, error: "preview_read_only", message: "プレビューでは予約や変更を受け付けていません。公開サイトをご利用ください。" }), {
+      status: 403,
+      headers: { "content-type": "application/json; charset=utf-8" },
+    });
+  }
   return db.withPool(async () => {
     let res;
     try {
@@ -91,13 +113,19 @@ export async function handleReserve({ request, env, next, waitUntil }) {
   for (const key of ENV_KEYS) if (env[key] !== undefined) process.env[key] = env[key];
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "");
+  if (env.RESERVE_READ_ONLY === "true" && path === "/reserve") {
+    return Response.redirect("https://987sauna.pages.dev/reserve/", 302);
+  }
   if (path === "/reserve" && url.pathname !== "/reserve/") {
     url.pathname = "/reserve/";
     return Response.redirect(url.toString(), 301);
   }
   const api = path.match(/^\/reserve\/api\/([a-z-]+)$/);
   if (api) {
-    if (api[1] === "cron-daily") return runCron(request, waitUntil);
+    if (api[1] === "cron-daily") {
+      if (env.RESERVE_READ_ONLY === "true") return new Response("Preview is read only", { status: 403 });
+      return runCron(request, waitUntil);
+    }
     const handler = API[api[1]];
     if (!handler) return new Response("Not Found", { status: 404 });
     return runApi(request, url, handler, waitUntil);
