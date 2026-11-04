@@ -482,8 +482,8 @@ async function createBooking(payload, event, { admin = null } = {}) {
     const times = buildSlotTimes(payload.date, payload.slotId, settings, plan);
     if (!times) return json(400, { ok: false, error: "invalid_slot", message: "時間枠が正しくありません。" }, event);
     if (times.startAt <= new Date()) return json(400, { ok: false, error: "past_slot", message: "過去の日時は予約できません。" }, event);
-    if (!phoneBooking && times.startAt.getTime() - Date.now() < 2 * 60 * 60 * 1000) {
-      return json(400, { ok: false, error: "booking_cutoff", message: "開始2時間前を過ぎた枠は予約できません。" }, event);
+    if (!phoneBooking && times.startAt.getTime() - Date.now() < 60 * 60 * 1000) {
+      return json(400, { ok: false, error: "booking_cutoff", message: "開始1時間前を過ぎた枠は予約できません。" }, event);
     }
 
     // 2往復目：人数の料金・枠が開いているか・休止・キャンセル規定・オプション
