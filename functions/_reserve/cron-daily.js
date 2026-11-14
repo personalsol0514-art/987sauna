@@ -140,12 +140,13 @@ exports.handler = async () => {
       }, null, reservations.rowCount > 0 ? "daily_reservation_digest" : "daily_uncompleted_digest");
     }
     // スタッフのLINEグループには、未精算がある日だけ一覧を送る（通知用LINEは月200通までのため、ほかの通知は送らない）
+    // Cloudflare から送れなかったとき（鍵が未登録など）は、返事に文面を入れて、毎朝この処理を呼ぶさくらVPSに送ってもらう
+    let lineGroupText = null;
     if (uncompletedCount > 0) {
       const [, month, day] = date.split("-");
-      await pushLineGroup(
-        `💴 未精算のお知らせ（${Number(month)}/${Number(day)}）\n${uncompletedField.value}\n\n管理画面で精算をお願いします。\n${process.env.SITE_ORIGIN || "https://987sauna.pages.dev"}/reserve/admin/`,
-        "daily_uncompleted_line",
-      );
+      const text = `💴 未精算のお知らせ（${Number(month)}/${Number(day)}）\n${uncompletedField.value}\n\n管理画面で精算をお願いします。\n${process.env.SITE_ORIGIN || "https://987sauna.pages.dev"}/reserve/admin/`;
+      const status = await pushLineGroup(text, "daily_uncompleted_line");
+      if (status !== "sent") lineGroupText = text;
     }
     const all = await client.query(
       `select r.*, p.name as plan_name,
@@ -175,7 +176,7 @@ exports.handler = async () => {
        limit 5000`,
     );
     await syncPayments(payments.rows);
-    return { statusCode: 200, body: JSON.stringify({ ok: true, date, count: reservations.rowCount, reminders: reminders.rowCount }) };
+    return { statusCode: 200, body: JSON.stringify({ ok: true, date, count: reservations.rowCount, reminders: reminders.rowCount, uncompleted: uncompletedCount, lineGroupText }) };
   } finally {
     client.release();
   }
