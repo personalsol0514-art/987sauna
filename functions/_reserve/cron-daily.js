@@ -38,6 +38,22 @@ function dailyReservationValue(row) {
   return `${hasBbqRequest(row) ? "🍖 BBQ希望あり\n" : ""}${lines.join("\n")}`;
 }
 
+function formatDateLabel(value) {
+  const parts = new Intl.DateTimeFormat("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", weekday: "short" }).formatToParts(new Date(value));
+  const get = (type) => parts.find((p) => p.type === type)?.value || "";
+  return `${get("month")}/${get("day")}(${get("weekday")})`;
+}
+
+// 未精算の予約を「日付 時刻　お名前 様（予約番号）」で1行ずつ並べる。Discordの1欄は1024文字までなので、多いときは件数でまとめる
+function uncompletedValue(rows) {
+  const MAX_LINES = 15;
+  const lines = rows.slice(0, MAX_LINES).map((r) =>
+    `・${formatDateLabel(r.start_at)} ${formatTime(r.start_at)}　${present(r.contact_name) ? `${r.contact_name} 様` : "お名前なし"}（${r.reservation_code}）`,
+  );
+  if (rows.length > MAX_LINES) lines.push(`ほか${rows.length - MAX_LINES}件`);
+  return `昨日以前の未完了予約が${rows.length}件あります。\n${lines.join("\n")}`.slice(0, 1024);
+}
+
 exports.handler = async () => {
   if (!externalDeliveryEnabled()) return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: "external_delivery_disabled" }) };
   const date = jstDate(0);
@@ -73,13 +89,15 @@ exports.handler = async () => {
       };
     });
     const uncompleted = await client.query(
-      `select count(*)::int as count
+      `select reservation_code, contact_name, start_at
        from reservations
        where status = 'confirmed'
-         and (start_at at time zone 'Asia/Tokyo')::date < $1::date`,
+         and (start_at at time zone 'Asia/Tokyo')::date < $1::date
+       order by start_at asc`,
       [date],
     );
-    const uncompletedCount = Number(uncompleted.rows[0]?.count || 0);
+    const uncompletedCount = uncompleted.rowCount;
+    const uncompletedField = { name: "未精算", value: uncompletedValue(uncompleted.rows), inline: false };
     const tomorrow = jstDate(1);
     const reminders = await client.query(
       `select r.*, p.name as plan_name,
@@ -105,9 +123,9 @@ exports.handler = async () => {
       const fields = reservations.rowCount > 0
         ? [
           ...reservationFields,
-          ...(uncompletedCount ? [{ name: "未精算", value: `昨日以前の未完了予約が${uncompletedCount}件あります。`, inline: false }] : []),
+          ...(uncompletedCount ? [uncompletedField] : []),
         ]
-        : [{ name: "未精算", value: `昨日以前の未完了予約が${uncompletedCount}件あります。`, inline: false }];
+        : [uncompletedField];
       await postDiscord({
         embeds: [{
           title: reservations.rowCount > 0 ? `📅 ${date} の予約${hasBbqToday ? " 🍖 BBQ希望あり" : ""}` : "未精算の確認",
