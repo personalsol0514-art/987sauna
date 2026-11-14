@@ -1,5 +1,6 @@
 const { getPool } = require("./lib/db");
 const { postDiscord } = require("./lib/discord");
+const { pushLineGroup } = require("./lib/line-group");
 const { sendReminderMail } = require("./lib/mail");
 const { syncAllReservations, syncPayments } = require("./lib/sheet");
 const { externalDeliveryEnabled } = require("./lib/外部送信設定");
@@ -137,6 +138,14 @@ exports.handler = async () => {
           timestamp: new Date().toISOString(),
         }],
       }, null, reservations.rowCount > 0 ? "daily_reservation_digest" : "daily_uncompleted_digest");
+    }
+    // スタッフのLINEグループには、未精算がある日だけ一覧を送る（通知用LINEは月200通までのため、ほかの通知は送らない）
+    if (uncompletedCount > 0) {
+      const [, month, day] = date.split("-");
+      await pushLineGroup(
+        `💴 未精算のお知らせ（${Number(month)}/${Number(day)}）\n${uncompletedField.value}\n\n管理画面で精算をお願いします。\n${process.env.SITE_ORIGIN || "https://987sauna.pages.dev"}/reserve/admin/`,
+        "daily_uncompleted_line",
+      );
     }
     const all = await client.query(
       `select r.*, p.name as plan_name,

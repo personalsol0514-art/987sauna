@@ -41,6 +41,7 @@
 | `LINE_CHANNEL_SECRET` | お店の公式LINE |
 | `MAI_LINE_TOKEN` | エラー時に「mai」から通知するためのアクセストークン |
 | `MAI_LINE_TO` | エラー通知の送信先 |
+| `LINE_NOTIFY_TOKEN` | 通知用LINE「987サウナ」（@120vngiz）のアクセストークン。毎朝、未精算があるときだけスタッフのLINEグループ「サウナ」へ一覧を送る（送り先は `wrangler.toml` の `LINE_NOTIFY_GROUP_ID`） |
 
 mai 通知用2項目が未設定の間は、予約処理でエラーが起きても mai への通知は届きません。設定後は両方の環境を再デプロイしてください。
 
